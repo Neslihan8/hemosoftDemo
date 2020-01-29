@@ -2,21 +2,72 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hemosoftDemo
-  labels:
-    app: hemosoftDemo
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      app: hemosoftDemo
   template:
     metadata:
       labels:
         app: hemosoftDemo
     spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
       containers:
       - name: hemosoftDemo
         image: neslihan8/neslihan8/hemosoftdemo
         ports:
+        - containerPort: 6379
+          name: neslihan8/neslihan8/hemosoftdemo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hemosoftDemo
+spec:
+  ports:
+  - port: 6379
+  selector:
+    app: hemosoftDemo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hemosoftDemo
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5 
+  template:
+    metadata:
+      labels:
+        app: hemosoftDemo
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: hemosoftDemo
+        image: hemosoftDemo.azurecr.io/neslihan8/neslihan8/hemosoftdemo:4
+        ports:
         - containerPort: 80
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+        env:
+        - name: neslihan8/neslihan8/hemosoftdemo
+          value: "hemosoftDemo"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hemosoftDemo
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: hemosoftDemo
         
