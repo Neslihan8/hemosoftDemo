@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hemosoftDemo
+  labels:
+    app: hemosoftDemo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hemosoftDemo
+  template:
+    metadata:
+      labels:
+        app: hemosoftDemo
+    spec:
+      containers:
+      - name: hemosoftDemo
+        image: neslihan8/neslihan8/hemosoftdemo
+        ports:
+        - containerPort: 80
