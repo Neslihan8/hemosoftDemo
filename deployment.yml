@@ -19,3 +19,4 @@ spec:
         image: neslihan8/neslihan8/hemosoftdemo
         ports:
         - containerPort: 80
+        
