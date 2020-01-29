@@ -18,6 +18,10 @@ spec:
         - containerPort: 6379
           name: neslihan8/neslihan8/hemosoftdemo
 steps:
+  - task: CopyFiles@2
+    inputs:
+      contents: '**/*.war'
+      targetFolder: '$(build.artifactStagingDirectory)'
   - task: PublishBuildArtifacts@1
     inputs:
       artifactName: 'war'
