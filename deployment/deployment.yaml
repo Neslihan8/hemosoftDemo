@@ -1,82 +1,38 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: hemosoftDemo
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: hemosoftDemo
-    spec:
-      nodeSelector:
-        "beta.kubernetes.io/os": linux
-      containers:
-      - name: hemosoftDemo
-        image: neslihan8/neslihan8/hemosoftdemo
-        ports:
-        - containerPort: 6379
-          name: neslihan8/neslihan8/hemosoftdemo
-steps:
-  - task: CopyFiles@2
-    inputs:
-      contents: '**/*.war'
-      targetFolder: '$(build.artifactStagingDirectory)'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      artifactName: 'war'
-      pathToPublish: '$(build.artifactStagingDirectory)'
----
 apiVersion: v1
 kind: Service
 metadata:
   name: hemosoftDemo
+  labels: 
+    app: hemosoftDemo
 spec:
-  ports:
-  - port: 6379
   selector:
     app: hemosoftDemo
+  ports:
+  - name: http
+    port: 8000
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hemosoftDemo
+  labels:
+    version: v1
 spec:
   replicas: 1
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-  minReadySeconds: 5 
+  selector:
+    matchLabels:
+      app: hemosoftDemo
   template:
     metadata:
       labels:
         app: hemosoftDemo
+        version: v1
     spec:
-      nodeSelector:
-        "beta.kubernetes.io/os": linux
       containers:
       - name: hemosoftDemo
-        image: hemosoftDemo.azurecr.io/neslihan8/neslihan8/hemosoftdemo:4
+        image: hemosoftDemo.azurecr.io/hemosoftDemo:#{Build.BuildId}#
         ports:
-        - containerPort: 80
-        resources:
-          requests:
-            cpu: 250m
-          limits:
-            cpu: 500m
+        - containerPort: 8000 
         env:
-        - name: neslihan8/neslihan8/hemosoftdemo
-          value: "hemosoftDemo"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: hemosoftDemo
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-  selector:
-    app: hemosoftDemo
-        
+        - name: PORT
+          value: "8000"
